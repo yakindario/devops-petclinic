@@ -1,7 +1,14 @@
-## Empezando
+# Como desplegar de forma local
+
+### Punto de Partida 
+El sistema está dividido en dos componentes principales definidos en archivos Docker Compose separados:
+- `compose.yml`: Servicios principales del negocio
+- `compose.monitor.yml`: Stack de observabilidad y monitoreo
+
+> Estos son puntos de partida referenciales para resolver el desafío
 
 ```
-git clone https://gitlab.com/cf-devops-petclinic.git
+git clone https://gitlab.com/training-devops-cf/cf-devops-challenge/cf-devops-petclinic.git
 cd cf-devops-petclinic
 ./mvnw package
 java -jar target/*.jar
@@ -25,22 +32,109 @@ O puedes ejecutarlo directamente desde Maven usando el plugin de Spring Boot par
 ./mvnw spring-boot:run
 ```
 
-> NOTA: Los usuarios de Windows deben configurar `git config core.autocrlf true` para evitar que las afirmaciones de formato fallen en la compilación (usa `--global` para establecer esa bandera globalmente).
+### Servicios de Negocio (compose.yml)
 
-> NOTA: Si prefieres usar Gradle, puedes construir la aplicación usando `./gradlew build` y buscar el archivo jar en `build/libs`.
+#### Bussiness Layer
+1. **PetClinic Service**
+   - Puerto: 8820:8080
+   - Tecnología: Java (Spring Boot)
+   - Función: Interfaz de usuario principal
+   - Base de datos: Mysql
+
+### Stack de Observabilidad (compose.monitor.yml)
+
+#### Recolección y Procesamiento
+1. **OpenTelemetry Collector**
+   - Puertos: 13133, 8888, 8889
+   - Función: Recolección centralizada de telemetría
+
+#### Almacenamiento y Análisis
+1. **Prometheus**
+   - Puerto: 9090
+   - Función: Almacenamiento y consulta de métricas
+   - Configuración: 
+     - Archivo de reglas
+     - Soporte OTLP
+
+2. **Jaeger**
+   - Puertos: 4317, 9411, 16686
+   - Función: Análisis de trazas distribuidas
+
+## Configuración de Observabilidad
+
+### Exportación de Telemetría
+Todos los servicios están configurados con las siguientes variables de entorno para exportar telemetría:
+```yaml
+- OTEL_TRACES_EXPORTER=otlp
+- OTEL_METRICS_EXPORTER=prometheus
+- OTEL_EXPORTER_OTLP_ENDPOINT=http://otel:4317
+- OTEL_SERVICE_NAME=<service>-service
+- OTEL_RESOURCE_ATTRIBUTES=service.name=<service>-service
+
+### Persistencia de Datos
+Volúmenes configurados para persistencia:
+- log-data
+- prometheus-data
 
 
-## Construcción 
+# Guía de Despliegue Entorno LOCAL
 
-```
- docker build -t petclinic-app . -f Dockerfile.multi
-```
+### Prerrequisitos
+- Docker y Docker Compose instalados
+- Mínimo 8GB de RAM disponible
+- 20GB de espacio en disco
 
-## Usando Docker Compose
+### Docker Compose
+1. Desplegar stack de observabilidad:
 
-```
- docker-compose up -d
-```
+   ```bash
+   docker compose -f compose.monitor.yml up -d
+   ```
+
+2. Desplegar servicios de negocio:
+   ```bash
+   docker compose -f compose.yml up -d --build
+   ```
+
+
+### Verificación del Despliegue
+1. UI: http://localhost:8820
+2. Prometheus: http://localhost:9090
+3. Jaeger UI: http://localhost:16686
+
+## Mantenimiento y Monitoreo
+
+### Endpoints de Salud
+- OpenTelemetry Collector: http://localhost:13133
+
+
+### Dashboards Recomendados
+1. **Overview del Sistema**
+   - Métricas de servicios
+   - Tasas de error
+   - Latencia de endpoints
+
+2. **Monitoreo de Bases de Datos**
+   - Conexiones activas
+   - Tiempos de consulta
+   - Uso de recursos
+
+3. **Trazas de Transacciones**
+   - Flujo de checkout
+   - Procesamiento de órdenes
+   - Latencia end-to-end
+
+### Clean
+
+   ```bash
+   docker compose -f compose.monitor.yml down -v
+   ```
+
+2. Desplegar servicios de negocio:
+   ```bash
+   docker compose -f compose.yml down
+   ```
+
 
 ## Referencias
 

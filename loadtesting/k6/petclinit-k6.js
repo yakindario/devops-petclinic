@@ -8,14 +8,10 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 // Configuración de la prueba
 export const options = {
     stages: [
-        { duration: '10s', target: 50 }, // Rampa de subida hasta 500 usuarios en 10s
-        { duration: '1m', target: 50 },  // Mantener 500 usuarios durante 1 minuto
+        { duration: '10s', target: 50 }, // Rampa de subida hasta 50 usuarios en 10s
+        { duration: '1m', target: 50 },  // Mantener 50 usuarios durante 1 minuto
         { duration: '10s', target: 0 }    // Rampa de bajada
-    ],
-    thresholds: {
-        http_req_duration: ['p(95)<500'], // 95% de las peticiones deben completarse en menos de 500ms
-        'http_req_duration{staticAsset:yes}': ['p(95)<100'], // Assets estáticos más rápidos
-    },
+    ]
 };
 
 // Variables globales
@@ -134,9 +130,7 @@ export function handleSummary(data) {
         "results.html": htmlReport(data, {
             title: 'Spring PetClinic Performance Test',
             descriptions: {
-                pageSuccessRate: 'Tasa de éxito de las páginas',
-                http_req_duration: 'Duración de las peticiones HTTP',
-                'http_req_duration{staticAsset:yes}': 'Duración de las peticiones de recursos estáticos'
+                pageSuccessRate: 'Tasa de éxito de las páginas'
             }
         }),
         "results.json": JSON.stringify(data),

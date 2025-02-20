@@ -11,9 +11,9 @@
 
 
 ## UI PetClinic
-La interfaz de usuario de Retail Store es una aplicación web que permite a los usuarios interactuar con el sistema de gestión de la tienda. Proporciona funcionalidades para la gestión de inventarios, ventas y clientes, facilitando la operación diaria del negocio.
+La interfaz de usuario de UI PetClinic es una aplicación web que permite a los usuarios interactuar con el sistema de gestión Veterinaria. 
 
-Para acceder a la interfaz de usuario de Retail Store, visita: [Retail Store UI](http://localhost:8820)
+Para acceder a la interfaz de usuario de UI PetClinic, visita: [UI PetClinic](http://localhost:8820)
 
 ![](./images/4.png)
 
@@ -21,6 +21,14 @@ Para acceder a la interfaz de usuario de Retail Store, visita: [Retail Store UI]
 
 ![](./images/6.png)
 
+## Observabilidad
+
+### Prometheus
+![](./images/9.png)
+
+
+### Jaeger UI
+![](./images/11.png)
 
 ## Pruebas de Carga
 
