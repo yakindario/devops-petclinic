@@ -36,7 +36,7 @@ O puedes ejecutarlo directamente desde Maven usando el plugin de Spring Boot par
 
 #### Bussiness Layer
 1. **PetClinic Service**
-   - Puerto: 8820:8080
+   - Puerto: 8080:8080
    - Tecnología: Java (Spring Boot)
    - Función: Interfaz de usuario principal
    - Base de datos: Mysql
@@ -98,7 +98,7 @@ Volúmenes configurados para persistencia:
 
 
 ### Verificación del Despliegue
-1. UI: http://localhost:8820
+1. UI: http://localhost:8080
 2. Prometheus: http://localhost:9090
 3. Jaeger UI: http://localhost:16686
 
