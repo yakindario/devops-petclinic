@@ -92,6 +92,13 @@ jobs:
           # Actualizar archivo YAML con la nueva imagen
           sed -i "s|image: acr-registry-placeholder/petclinic:latest|image: ${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}|g" kubernetes/apps/petclinic/deployment.yaml
           
+          # Verificar la sustitución
+          echo "Verificando la imagen después de la sustitución:"
+          cat kubernetes/apps/petclinic/deployment.yaml | grep image:
+          
+          # Eliminar el despliegue anterior si existe
+          kubectl delete deployment petclinic -n petclinic --ignore-not-found=true
+          
           # Aplicar manifiestos
           kubectl apply -f kubernetes/apps/petclinic/
           kubectl apply -f kubernetes/apps/mysql/
