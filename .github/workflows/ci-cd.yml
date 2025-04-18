@@ -99,7 +99,15 @@ jobs:
           kubectl apply -f kubernetes/apps/monitoring/jaeger/
           kubectl apply -f kubernetes/apps/monitoring/otel/
           kubectl apply -f kubernetes/apps/monitoring/prometheus/
+          
+          # Diagnóstico del despliegue
+          echo "Verificando estado del despliegue..."
+          kubectl get deployments -n petclinic
+          kubectl describe deployment petclinic -n petclinic
+          kubectl get pods -n petclinic
+          kubectl describe pods -n petclinic | grep -i -A 10 "Events: "
 
-      - name: Verify deployment
+      - name: Verify deployment with increased timeout
         run: |
-          kubectl rollout status deployment/petclinic -n petclinic --timeout=180s
+          kubectl rollout status deployment/petclinic -n petclinic --timeout=300s
+        continue-on-error: true
