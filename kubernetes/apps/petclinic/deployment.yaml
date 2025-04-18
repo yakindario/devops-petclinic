@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: petclinic
-        image: ${ACR_LOGIN_SERVER}/petclinic:latest
+        image: acr-registry-placeholder/petclinic:latest
         ports:
         - containerPort: 8080
         - containerPort: 9464
