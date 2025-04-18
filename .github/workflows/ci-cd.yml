@@ -64,7 +64,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }},${{ secrets.ACR_LOGIN_SERVER }}/petclinic:latest
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/petclinic:latest
 
   deploy:
     needs: docker
