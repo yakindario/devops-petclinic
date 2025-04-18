@@ -95,7 +95,10 @@ jobs:
           # Aplicar manifiestos
           kubectl apply -f kubernetes/apps/petclinic/
           kubectl apply -f kubernetes/apps/mysql/
-          kubectl apply -f kubernetes/apps/monitoring/
+          # Aplicar manifiestos de monitoreo por componente
+          kubectl apply -f kubernetes/apps/monitoring/jaeger/
+          kubectl apply -f kubernetes/apps/monitoring/otel/
+          kubectl apply -f kubernetes/apps/monitoring/prometheus/
 
       - name: Verify deployment
         run: |
