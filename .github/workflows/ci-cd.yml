@@ -108,8 +108,8 @@ jobs:
             --password "$ARGOCD_PASSWORD" \
             --insecure --grpc-web
 
-          # opcional: verifica que el usuario sea admin
-          argocd account get-user
+           # (Opcional) Mostrar datos del usuario – usa el sub‑comando correcto
+          argocd account get-user-info
 
           echo "🚀 Synchronising application…"
           argocd app sync petclinic --timeout 300
