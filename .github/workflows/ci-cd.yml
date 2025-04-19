@@ -88,21 +88,29 @@ jobs:
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
             # Agrega al job `deploy`:
-      - name: Install ArgoCD CLI
+      - name: Install Argo CD CLI
         run: |
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          curl -sSL -o argocd \
+            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           chmod +x argocd && sudo mv argocd /usr/local/bin
 
-      - name: Login to ArgoCD
+      - name: Login **and** sync PetClinic
         env:
-          ARGOCD_SERVER:       ${{ secrets.ARGOCD_SERVER }}
-          ARGOCD_USERNAME:     ${{ secrets.ARGOCD_USERNAME }}
-          ARGOCD_PASSWORD:     ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
+          ARGOCD_SERVER:   ${{ secrets.ARGOCD_SERVER }}      # p. ej. 134.33.149.53
+          ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}    # admin
+          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
         run: |
-          argocd login $ARGOCD_SERVER \
-            --username $ARGOCD_USERNAME \
-            --password $ARGOCD_PASSWORD \
-            --insecure
+          set -e  # falla en cuanto algo no devuelva 0
 
-      - name: Sync PetClinic
-        run: argocd app sync petclinic
+          echo "🔐 Logging in to Argo CD…"
+          argocd login "$ARGOCD_SERVER" \
+            --username "$ARGOCD_USERNAME" \
+            --password "$ARGOCD_PASSWORD" \
+            --insecure --grpc-web
+
+          # opcional: verifica que el usuario sea admin
+          argocd account get-user
+
+          echo "🚀 Synchronising application…"
+          argocd app sync petclinic --timeout 300
+
