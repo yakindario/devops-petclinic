@@ -94,20 +94,14 @@ jobs:
             https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           chmod +x argocd && sudo mv argocd /usr/local/bin
 
-      - name: Login & sync via Argo CD
+      - name: Sync via token
         env:
-          ARGOCD_SERVER:   ${{ secrets.ARGOCD_SERVER }}      # sin https://
-          ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}    # admin
-          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
+          ARGOCD_SERVER:     ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
         run: |
-          set -e
+          argocd app sync petclinic \
+            --server "$ARGOCD_SERVER" \
+            --auth-token "$ARGOCD_AUTH_TOKEN" \
+            --insecure --grpc-web --timeout 300
 
-          echo "🔐  Login"
-          argocd login "$ARGOCD_SERVER" \
-            --username "$ARGOCD_USERNAME" \
-            --password "$ARGOCD_PASSWORD" \
-            --insecure --grpc-web
-
-          echo "🚀  Sync PetClinic"
-          argocd app sync petclinic --grpc-web --timeout 300
 
