@@ -15,44 +15,44 @@ spec:
         app: petclinic
     spec:
       containers:
-      - name: petclinic
-        image: yakindario.azurecr.io/petclinic:latest
-        ports:
-        - containerPort: 8080
-        - containerPort: 9464
-        resources:
-          limits:
-            cpu: "1"
-            memory: "1Gi"
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
-        env:
-        - name: PORT
-          value: "8080"
-        - name: MYSQL_URL
-          value: "jdbc:mysql://mysql-service/petclinic"
-        - name: OTEL_TRACES_EXPORTER
-          value: "otlp"
-        - name: OTEL_METRICS_EXPORTER
-          value: "otlp"
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://otel-service:4317"
-        - name: OTEL_SERVICE_NAME
-          value: "petclinic-service"
-        - name: OTEL_RESOURCE_ATTRIBUTES
-          value: "service.name=petclinic-service"
-        - name: OTEL_EXPORTER_OTLP_PROTOCOL
-          value: "grpc"
-        - name: OTEL_TRACES_SAMPLER
-          value: "parentbased_always_on"
-        - name: MANAGEMENT_SERVER_PORT
-          value: "9464"
-        - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
-          value: "prometheus,health,info,metrics"
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
+        - name: petclinic
+          image: acrpetclinicdev.azurecr.io/petclinic:latest
+          ports:
+            - containerPort: 8080
+            - containerPort: 9464
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: PORT
+              value: "8080"
+            - name: MYSQL_URL
+              value: "jdbc:mysql://mysql-service/petclinic"
+            - name: OTEL_TRACES_EXPORTER
+              value: "otlp"
+            - name: OTEL_METRICS_EXPORTER
+              value: "otlp"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-service:4317"
+            - name: OTEL_SERVICE_NAME
+              value: "petclinic-service"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.name=petclinic-service"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_TRACES_SAMPLER
+              value: "parentbased_always_on"
+            - name: MANAGEMENT_SERVER_PORT
+              value: "9464"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "prometheus,health,info,metrics"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
