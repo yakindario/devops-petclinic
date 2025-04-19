@@ -84,21 +84,6 @@ jobs:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
-      - name: Replace image tag and commit
-        env:
-          IMG: "${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          sed -i "s|image: .*|image: ${IMG}|g" kubernetes/apps/petclinic/deployment.yaml
-          if git diff --quiet; then
-            echo "No manifests changed"; exit 0; fi
-          git config --global user.email "ci@github.com"
-          git config --global user.name  "github-actions"
-          git add kubernetes/apps/petclinic/deployment.yaml
-          git commit -m "CI: bump image to ${IMG}"
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
-
       - name: Install Argo CD CLI
         run: |
           curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
