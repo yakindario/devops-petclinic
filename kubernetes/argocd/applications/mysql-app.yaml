@@ -7,12 +7,14 @@ spec:
   project: default
   source:
     repoURL: https://github.com/yakindario/devops-petclinic.git
-    targetRevision: HEAD
+    targetRevision: main
     path: kubernetes/apps/mysql
   destination:
     server: https://kubernetes.default.svc
-    namespace: petclinic
+    namespace: petclinic    # o "mysql" si lo aislas
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

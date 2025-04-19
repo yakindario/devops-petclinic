@@ -87,34 +87,22 @@ jobs:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
-      - name: Deploy to Kubernetes
+            # Agrega al job `deploy`:
+      - name: Install ArgoCD CLI
         run: |
-          # Actualizar archivo YAML con la nueva imagen
-          sed -i "s|image: acr-registry-placeholder/petclinic:latest|image: ${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}|g" kubernetes/apps/petclinic/deployment.yaml
-          
-          # Verificar la sustitución
-          echo "Verificando la imagen después de la sustitución:"
-          cat kubernetes/apps/petclinic/deployment.yaml | grep image:
-          
-          # Eliminar el despliegue anterior si existe
-          kubectl delete deployment petclinic -n petclinic --ignore-not-found=true
-          
-          # Aplicar manifiestos
-          kubectl apply -f kubernetes/apps/petclinic/
-          kubectl apply -f kubernetes/apps/mysql/
-          # Aplicar manifiestos de monitoreo por componente
-          kubectl apply -f kubernetes/apps/monitoring/jaeger/
-          kubectl apply -f kubernetes/apps/monitoring/otel/
-          kubectl apply -f kubernetes/apps/monitoring/prometheus/
-          
-          # Diagnóstico del despliegue
-          echo "Verificando estado del despliegue..."
-          kubectl get deployments -n petclinic
-          kubectl describe deployment petclinic -n petclinic
-          kubectl get pods -n petclinic
-          kubectl describe pods -n petclinic | grep -i -A 10 "Events: "
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd && sudo mv argocd /usr/local/bin
 
-      - name: Verify deployment with increased timeout
+      - name: Login to ArgoCD
+        env:
+          ARGOCD_SERVER:       ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_USERNAME:     ${{ secrets.ARGOCD_USERNAME }}
+          ARGOCD_PASSWORD:     ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
         run: |
-          kubectl rollout status deployment/petclinic -n petclinic --timeout=300s
-        continue-on-error: true
+          argocd login $ARGOCD_SERVER \
+            --username $ARGOCD_USERNAME \
+            --password $ARGOCD_PASSWORD \
+            --insecure
+
+      - name: Sync PetClinic
+        run: argocd app sync petclinic
