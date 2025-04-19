@@ -17,8 +17,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
           cache: maven
 
       - name: Build with Maven
@@ -73,43 +73,43 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Login to Azure
-        uses: azure/login@v1
+      - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get AKS credentials
-        uses: azure/aks-set-context@v3
+      - uses: azure/aks-set-context@v3
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
-            # Agrega al job `deploy`:
-      - name: Replace image tag
+      - name: Replace image tag and commit
+        env:
+          IMG: "${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          IMG="${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}"
+          set -e
           sed -i "s|image: .*|image: ${IMG}|g" kubernetes/apps/petclinic/deployment.yaml
-          git config --global user.email "ci@github" && git config --global user.name "github-actions"
-          git commit -am "CI: bump image to $IMG" && git push origin main
+          if git diff --quiet; then
+            echo "No manifests changed"; exit 0; fi
+          git config --global user.email "ci@github.com"
+          git config --global user.name  "github-actions"
+          git add kubernetes/apps/petclinic/deployment.yaml
+          git commit -m "CI: bump image to ${IMG}"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
 
-      #
       - name: Install Argo CD CLI
         run: |
-          curl -sSL -o argocd \
-            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           chmod +x argocd && sudo mv argocd /usr/local/bin
 
       - name: Sync via token
         env:
-          ARGOCD_SERVER:     ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
         run: |
           argocd app sync petclinic \
             --server "$ARGOCD_SERVER" \
             --auth-token "$ARGOCD_AUTH_TOKEN" \
             --insecure --grpc-web --timeout 300
-
-
