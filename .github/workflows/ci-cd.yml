@@ -88,6 +88,14 @@ jobs:
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
             # Agrega al job `deploy`:
+      - name: Replace image tag
+        run: |
+          IMG="${{ secrets.ACR_LOGIN_SERVER }}/petclinic:${{ github.sha }}"
+          sed -i "s|image: .*|image: ${IMG}|g" kubernetes/apps/petclinic/deployment.yaml
+          git config --global user.email "ci@github" && git config --global user.name "github-actions"
+          git commit -am "CI: bump image to $IMG" && git push origin main
+
+      #
       - name: Install Argo CD CLI
         run: |
           curl -sSL -o argocd \

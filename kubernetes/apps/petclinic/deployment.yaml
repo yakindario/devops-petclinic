@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: petclinic
-        image: acr-registry-placeholder/petclinic:latest
+        image: yakindario.azurecr.io/petclinic:latest
         ports:
         - containerPort: 8080
         - containerPort: 9464
