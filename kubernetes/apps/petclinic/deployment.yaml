@@ -22,10 +22,10 @@ spec:
             - containerPort: 9464
           resources:
             requests:
-              cpu: "250m" # Baja de 500m a 250m
+              cpu: "250m"
               memory: "512Mi"
             limits:
-              cpu: "500m" # Limita a 0.5 CPU en lugar de 1
+              cpu: "500m"
               memory: "1Gi"
           env:
             - name: SPRING_DATASOURCE_URL
@@ -48,9 +48,9 @@ spec:
               value: grpc
             - name: OTEL_TRACES_SAMPLER
               value: parentbased_always_on
-            - name: MANAGEMENT_SERVER_PORT
+            - name: SPRING_MANAGEMENT_SERVER_PORT
               value: "9464"
-            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+            - name: SPRING_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
               value: prometheus,health,info,metrics
           readinessProbe:
             httpGet:
