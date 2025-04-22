@@ -22,10 +22,10 @@ spec:
             - containerPort: 9464
           resources:
             requests:
-              cpu: "500m"
+              cpu: "250m" # Baja de 500m a 250m
               memory: "512Mi"
             limits:
-              cpu: "1"
+              cpu: "500m" # Limita a 0.5 CPU en lugar de 1
               memory: "1Gi"
           env:
             - name: SPRING_DATASOURCE_URL
