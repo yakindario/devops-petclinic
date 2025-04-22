@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress
+  namespace: petclinic
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: petclinic.yakindario.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: petclinic-service
+                port:
+                  number: 80
+    - host: metrics.yakindario.com
+      http:
+        paths:
+          - path: /actuator/prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: petclinic-service
+                port:
+                  number: 9464
