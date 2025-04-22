@@ -15,25 +15,25 @@ spec:
         app: mysql
     spec:
       containers:
-      - name: mysql
-        image: mysql:8
-        ports:
-        - containerPort: 3306
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: ""
-        - name: MYSQL_ALLOW_EMPTY_PASSWORD
-          value: "true"
-        - name: MYSQL_USER
-          value: "petclinic"
-        - name: MYSQL_PASSWORD
-          value: "petclinic"
-        - name: MYSQL_DATABASE
-          value: "petclinic"
-        volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "" # o pon un secreto
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "true"
+            - name: MYSQL_USER
+              value: "petclinic"
+            - name: MYSQL_PASSWORD
+              value: "petclinic"
+            - name: MYSQL_DATABASE
+              value: "petclinic"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
       volumes:
-      - name: mysql-data
-        persistentVolumeClaim:
-          claimName: mysql-pvc
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc

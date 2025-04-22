@@ -21,35 +21,37 @@ spec:
             - containerPort: 8080
             - containerPort: 9464
           resources:
-            limits:
-              cpu: "1"
-              memory: "1Gi"
             requests:
               cpu: "500m"
               memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
           env:
-            - name: PORT
-              value: "8080"
-            - name: MYSQL_URL
-              value: "jdbc:mysql://mysql-service/petclinic"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-service:3306/petclinic
+            - name: SPRING_DATASOURCE_USERNAME
+              value: petclinic
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: petclinic
             - name: OTEL_TRACES_EXPORTER
-              value: "otlp"
+              value: otlp
             - name: OTEL_METRICS_EXPORTER
-              value: "otlp"
+              value: otlp
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://otel-service:4317"
+              value: http://otel-service:4317
             - name: OTEL_SERVICE_NAME
-              value: "petclinic-service"
+              value: petclinic-service
             - name: OTEL_RESOURCE_ATTRIBUTES
-              value: "service.name=petclinic-service"
+              value: service.name=petclinic-service
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
-              value: "grpc"
+              value: grpc
             - name: OTEL_TRACES_SAMPLER
-              value: "parentbased_always_on"
+              value: parentbased_always_on
             - name: MANAGEMENT_SERVER_PORT
               value: "9464"
             - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
-              value: "prometheus,health,info,metrics"
+              value: prometheus,health,info,metrics
           readinessProbe:
             httpGet:
               path: /actuator/health

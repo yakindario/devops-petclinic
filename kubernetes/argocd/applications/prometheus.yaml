@@ -3,6 +3,9 @@ kind: Application
 metadata:
   name: prometheus
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2" # o "0" si lo pones antes de petclinic
+
 spec:
   project: default
   source:
