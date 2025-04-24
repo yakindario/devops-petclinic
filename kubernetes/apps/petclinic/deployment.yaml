@@ -48,10 +48,6 @@ spec:
               value: grpc
             - name: OTEL_TRACES_SAMPLER
               value: parentbased_always_on
-            - name: SPRING_MANAGEMENT_SERVER_PORT
-              value: "9464"
-            - name: SPRING_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
-              value: prometheus,health,info,metrics
           readinessProbe:
             httpGet:
               path: /actuator/health
