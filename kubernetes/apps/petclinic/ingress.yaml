@@ -3,27 +3,25 @@ kind: Ingress
 metadata:
   name: petclinic-ingress
   namespace: petclinic
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   rules:
-    - host: petclinic.yakindario.com
+    - host: petclinic.yakindario.me
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: petclinic-service
-                port:
-                  number: 80
-    - host: metrics.yakindario.com
+                name: petclinic
+                port: { number: 8080 }
+    - host: metrics.yakindario.me
       http:
         paths:
           - path: /actuator/prometheus
             pathType: Prefix
             backend:
               service:
-                name: petclinic-service
-                port:
-                  number: 9464
+                name: petclinic
+                port: { number: 9464 }
+

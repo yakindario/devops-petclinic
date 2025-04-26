@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: prometheus
+    spec:
+      containers:
+        - args:
+            - --web.enable-lifecycle
+            - --config.file=/etc/prometheus.yaml
+            - --config.file=/etc/prometheus-config/prometheus.yaml
+            - --enable-feature=otlp-write-receiver
+          image: prom/prometheus:latest
+          name: prometheus
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/prometheus.yaml
+              name: prometheus-claim0}
+            - mountPath: /etc/prometheus-config
+              name: prometheus-config
+            - mountPath: /etc/prometheus/rules.yml
+              name: prometheus-claim1
+            - mountPath: /prometheus
+              name: prometheus-data
+      restartPolicy: Always
+      volumes:
+        - name: prometheus-claim0
+          persistentVolumeClaim:
+            claimName: prometheus-claim0
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+        - name: prometheus-claim1
+          persistentVolumeClaim:
+            claimName: prometheus-claim1
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-data

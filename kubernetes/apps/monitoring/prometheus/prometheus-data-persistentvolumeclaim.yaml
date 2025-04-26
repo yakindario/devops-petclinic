@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: prometheus-pvc
-  namespace: monitoring # Añadir esta línea
+  labels:
+    io.kompose.service: prometheus-data
+  name: prometheus-data
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 100Mi

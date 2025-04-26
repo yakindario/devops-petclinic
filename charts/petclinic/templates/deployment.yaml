@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "petclinic.fullname" . }}
+  labels: {{- include "petclinic.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "petclinic.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "petclinic.name" . }}
+    spec:
+      containers:
+        - name: {{ include "petclinic.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+            - containerPort: 9464
+          env:
+{{ toYaml .Values.env | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.metricsPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 10

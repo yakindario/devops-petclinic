@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: acrpetclinicdev.azurecr.io/petclinic
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  httpPort: 80
+  metricsPort: 9464
+
+ingress:
+  enabled: true
+  hosts:
+    app: petclinic.yakindario.me
+    metrics: metrics.yakindario.me
+    argocd: argocd.yakindario.me
+  # puedes añadir TLS si configuras cert-manager
+metrics:
+  path: /actuator/prometheus
+  port: 9464
+
+env:
+  - name: PORT
+    value: "8080"
+  - name: MYSQL_URL
+    value: jdbc:mysql://mysqlserver/petclinic
+  - name: MANAGEMENT_SERVER_PORT
+    value: "9464"
+  - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+    value: "prometheus,health,info,metrics"
+  # …y el resto de vars que uses
