@@ -28,6 +28,24 @@ spec:
                 name: {{ include "petclinic.fullname" . }}-service
                 port:
                   number: {{ .Values.service.metricsPort }}
+          {{- if .Values.monitoring.prometheus.enabled }}
+          - path: /prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: {{ .Values.monitoring.prometheus.service.port }}
+          {{- end }}
+          {{- if .Values.monitoring.jaeger.enabled }}
+          - path: /jaeger
+            pathType: Prefix
+            backend:
+              service:
+                name: jaeger
+                port:
+                  number: 16686
+          {{- end }}
     - host: {{ .Values.ingress.hosts.argocd }}
       http:
         paths:
@@ -39,4 +57,3 @@ spec:
                 port:
                   number: 80
 {{- end }}
-

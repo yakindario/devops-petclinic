@@ -11,12 +11,17 @@ spec:
     repoURL: https://github.com/yakindario/devops-petclinic.git
     targetRevision: main
     path: kubernetes/apps/petclinic
+    directory:
+      include: "petclinic-deployment.yaml" # Solo sincronizará este archivo
   destination:
     server: https://kubernetes.default.svc
     namespace: petclinic
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # Elimina recursos que ya no estén en Git
+      selfHeal: true # Revierte cambios manuales no autorizados
+      allowEmpty: false # No permite deployments vacíos
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true # Usa server-side apply para mejor rendimiento
+      - RespectIgnoreDifferences=true

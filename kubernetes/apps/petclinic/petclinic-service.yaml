@@ -1,17 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.35.0 (9532ceef3)
+  name: petclinic
   labels:
     io.kompose.service: petclinic
-  name: petclinic
 spec:
-  type: ClusterIP
   ports:
-    - port: 8080
-    - port: 8000
-    - port: 9464
+    - name: http # Puerto principal de la aplicación
+      port: 8080
+      targetPort: 8080
+    - name: debug # Puerto para depuración remota
+      port: 8000
+      targetPort: 8000
+    - name: metrics # Puerto para métricas Prometheus
+      port: 9464
+      targetPort: 9464
   selector:
     io.kompose.service: petclinic
+  type: ClusterIP # Puedes cambiarlo a LoadBalancer si necesitas acceso externo

@@ -75,27 +75,34 @@ jobs:
             ${{ env.ACR }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.ACR }}/${{ env.IMAGE_NAME }}:latest
 
-  # ───── CD (parte 2): Bump Helm Chart para ArgoCD ─────
-  # bump-chart:
+  # # ───── CD (parte 2): Bump Helm Chart para ArgoCD ─────
+  # update-deployment:
   #   needs: docker
   #   runs-on: ubuntu-latest
   #   if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
   #   steps:
-  #     - name: Checkout chart
+  #     - name: Checkout repo
   #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ secrets.REPO_ACCESS_TOKEN }} # Token con permisos para push
 
-  #     - name: Install yq (YAML CLI)
-  #       run: |
-  #         wget https://github.com/mikefarah/yq/releases/download/v4.39.3/yq_linux_amd64 -O /usr/local/bin/yq
-  #         chmod +x /usr/local/bin/yq
-
-  #     - name: Bump Helm chart image.tag
+  #     - name: Update image tag in deployment
   #       env:
   #         SHA: ${{ github.sha }}
+  #         ACR_SERVER: ${{ env.ACR }}
+  #         IMAGE_NAME: ${{ env.IMAGE_NAME }}
   #       run: |
+  #         # Configurar Git
   #         git config user.name "github-actions[bot]"
   #         git config user.email "github-actions[bot]@users.noreply.github.com"
-  #         yq e -i '.image.tag = strenv(SHA)' charts/petclinic/values.yaml
-  #         git add charts/petclinic/values.yaml
-  #         git commit -m "ci: bump image.tag to $SHA"
+
+  #         # Ruta al archivo de deployment que ArgoCD está monitoreando
+  #         DEPLOYMENT_FILE="kubernetes/apps/petclinic/petclinic-deployment.yaml"
+
+  #         # Actualizar la imagen con la nueva tag
+  #         sed -i "s|image: ${ACR_SERVER}/${IMAGE_NAME}:.*|image: ${ACR_SERVER}/${IMAGE_NAME}:${SHA}|g" $DEPLOYMENT_FILE
+
+  #         # Commit y push
+  #         git add $DEPLOYMENT_FILE
+  #         git commit -m "ci: actualizar imagen de petclinic a ${SHA}"
   #         git push

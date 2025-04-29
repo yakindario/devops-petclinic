@@ -1,0 +1,17 @@
+{{- if .Values.monitoring.otel.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel
+  labels:
+    {{- include "petclinic.labels" . | nindent 4 }}
+    app: otel
+spec:
+  type: ClusterIP
+  ports:
+    {{- range .Values.monitoring.otel.service.ports }}
+    - port: {{ .port }}
+    {{- end }}
+  selector:
+    app: otel
+{{- end }}

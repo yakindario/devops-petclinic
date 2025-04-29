@@ -1,46 +1,90 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.35.0 (9532ceef3)
-  labels:
-    io.kompose.service: otel
   name: otel
+  namespace: monitoring
+  labels:
+    app: otel
+    azure.workload/name: "otel-collector"
+    azure.workload/type: "monitoring"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: otel
-  strategy:
-    type: Recreate
+      app: otel
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert
-        kompose.version: 1.35.0 (9532ceef3)
       labels:
-        io.kompose.service: otel
+        app: otel
+        azure.workload/name: "otel-collector"
+        azure.workload/type: "monitoring"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8889"
     spec:
       containers:
-        - args:
-            - --config=/etc/otel-collector-config.yaml
-          image: otel/opentelemetry-collector-contrib:latest
-          name: otel
+        - name: otel
+          image: otel/opentelemetry-collector-contrib:0.82.0
+          args:
+            - "--config=/conf/otel-collector-config.yaml"
           ports:
-            - containerPort: 13133
-              protocol: TCP
-            - containerPort: 8888
-              protocol: TCP
-            - containerPort: 8889
-              protocol: TCP
-            - containerPort: 4317
-              protocol: TCP  
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+            - name: prometheus
+              containerPort: 8889
+            - name: healthcheck
+              containerPort: 13133
           volumeMounts:
-            - mountPath: /etc/otel-collector-config.yaml
-              name: otel-claim0
-      restartPolicy: Always
+            - name: otel-collector-config-vol
+              mountPath: /conf
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: healthcheck
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: healthcheck
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
       volumes:
-        - name: otel-claim0
-          persistentVolumeClaim:
-            claimName: otel-claim0
+        - name: otel-collector-config-vol
+          configMap:
+            name: otel-collector-conf
+            items:
+              - key: otel-collector-config.yaml
+                path: otel-collector-config.yaml
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"

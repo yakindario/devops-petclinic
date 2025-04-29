@@ -10,9 +10,15 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 4317
-    - port: 9411
-    - port: 16686
+    - name: ui # Puerto UI de Jaeger
+      port: 16686
+      targetPort: 16686
+    - name: thrift-compact # Puerto para Thrift Compact
+      port: 6831
+      targetPort: 6831
+    - name: thrift-binary # Puerto para Thrift Binary
+      port: 6832
+      targetPort: 6832
 
   selector:
     io.kompose.service: jaeger
