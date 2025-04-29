@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: petclinic
-          image: acrpetclinicdev.azurecr.io/petclinic:latest
+          image: acrpetclinicdev.azurecr.io/petclinic:5281b172408e2a2b377e6645f84410eafb3e6078
           ports:
             - containerPort: 8080
               protocol: TCP
