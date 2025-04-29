@@ -3,9 +3,14 @@ name: CI/CD Pipeline for PetClinic
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "kubernetes/apps/petclinic/petclinic-deployment.yaml" # Ignora cambios en el manifiesto de despliegue
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write # Permiso para escribir en el repositorio
 
 env:
   ACR: ${{ secrets.ACR_LOGIN_SERVER }}
@@ -75,34 +80,46 @@ jobs:
             ${{ env.ACR }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.ACR }}/${{ env.IMAGE_NAME }}:latest
 
-    # ───── CD (parte 2): Bump Helm Chart para ArgoCD ─────
-  update-deployment:
+  # ───── CD (parte 2): Actualizar manifiesto para ArgoCD ─────
+  update-argocd:
     needs: docker
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && !contains(github.event.head_commit.message, '[skip ci]')
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.REPO_ACCESS_TOKEN }} # Token con permisos para push
 
-      - name: Update image tag in deployment
+      - name: Configurar Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Actualizar imagen en manifiesto
         env:
           SHA: ${{ github.sha }}
-          ACR_SERVER: ${{ env.ACR }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
-          # Configurar Git
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Ruta al archivo de deployment que ArgoCD está monitoreando
+          # Definir ubicación del archivo
           DEPLOYMENT_FILE="kubernetes/apps/petclinic/petclinic-deployment.yaml"
 
-          # Actualizar la imagen con la nueva tag
-          sed -i "s|image: ${ACR_SERVER}/${IMAGE_NAME}:.*|image: ${ACR_SERVER}/${IMAGE_NAME}:${SHA}|g" $DEPLOYMENT_FILE
+          # Verificar si el archivo existe
+          if [ ! -f "$DEPLOYMENT_FILE" ]; then
+            echo "Error: El archivo $DEPLOYMENT_FILE no existe"
+            exit 1
+          fi
 
-          # Commit y push
-          git add $DEPLOYMENT_FILE
-          git commit -m "ci: actualizar imagen de petclinic a ${SHA}"
+          # Obtener la imagen actual
+          CURRENT_IMAGE=$(grep -o "image: ${ACR}/${IMAGE_NAME}:[a-zA-Z0-9]*" $DEPLOYMENT_FILE | cut -d':' -f3 || echo "")
+
+          # Si la imagen ya está actualizada, salir
+          if [ "$CURRENT_IMAGE" == "$SHA" ]; then
+            echo "La imagen ya está actualizada con la versión actual ($SHA). No se requiere cambio."
+            exit 0
+          fi
+
+          # Actualizar la imagen
+          sed -i "s|image: ${ACR}/${IMAGE_NAME}:.*|image: ${ACR}/${IMAGE_NAME}:${SHA}|g" $DEPLOYMENT_FILE
+
+          # Commit y push con mensaje especial que evita el trigger
+          git add "$DEPLOYMENT_FILE"
+          git commit -m "[skip ci] Actualizar imagen de petclinic a ${SHA}"
           git push
