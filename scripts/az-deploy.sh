@@ -7,8 +7,8 @@ AKS_NAME="petclinic-aks"
 ACR_NAME="petclinicacr$(date +%s | head -c 5)" # Nombre único
 ACR_SKU="Basic"
 
-# Login to Azure
-az login
+# # Login to Azure
+# az login
 
 # Create Resource Group
 echo "Creando grupo de recursos $RESOURCE_GROUP..."

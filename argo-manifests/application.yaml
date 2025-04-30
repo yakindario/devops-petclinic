@@ -6,22 +6,14 @@ metadata:
 spec:
   project: petclinic-project
   source:
-    repoURL: 'https://github.com/your-repo/petclinic.git'
+    repoURL: "https://github.com/yakindario/devops-petclinic.git"
     targetRevision: HEAD
     path: kubernetes/base
+    kustomize: {} # Cambiado de helm a kustomize
   destination:
-    server: 'https://kubernetes.default.svc'
+    server: "https://kubernetes.default.svc"
     namespace: petclinic
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncWindow:
-      schedule: "0 0 * * *"
-      duration: 2h
-  helm:
-    parameters:
-      - name: image.tag
-        value: latest
-      - name: mysql.password
-        value: petclinic

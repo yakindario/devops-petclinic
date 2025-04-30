@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: petclinic
-          image: <your-container-registry>/petclinic:latest
+          image: petclinicacr17460.azurecr.io/petclinic:latest
           ports:
             - containerPort: 8080
             - containerPort: 8000
@@ -42,4 +42,4 @@ spec:
             - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
               value: prometheus,health,info,metrics
       imagePullSecrets:
-        - name: <your-image-pull-secret>
+        - name: acr-secret
