@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: your-namespace  # Reemplaza con el namespace adecuado
+spec:
+  template:
+    spec:
+      containers:
+        - name: petclinic
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel:4317  # Asegúrate de que este valor sea correcto
+            - name: OTEL_SERVICE_NAME
+              value: petclinic-service
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=petclinic-service
+            - name: OTEL_TRACES_SAMPLER
+              value: parentbased_always_on
+            - name: OTEL_METRICS_EXPORTER
+              value: otlp
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+          ports:
+            - containerPort: 8080
+            - containerPort: 8000
+            - containerPort: 9464
+          image: your-docker-image:latest  # Reemplaza con la imagen correcta
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: your-image-pull-secret  # Reemplaza con el secreto adecuado si es necesario

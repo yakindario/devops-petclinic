@@ -1,0 +1,11 @@
+{
+  "name": "petclinic-container-registry",
+  "location": "[parameters('location')]",
+  "sku": {
+    "name": "Basic"
+  },
+  "properties": {
+    "adminUserEnabled": true,
+    "publicNetworkAccess": "Disabled"
+  }
+}

@@ -1,0 +1,14 @@
+resources:
+  - ../../base
+patches:
+  - path: patch-deployment.yaml
+
+configurations:
+  - name: development
+    namespace: petclinic-dev
+    replicas: 2
+    image: your-docker-image:latest
+    service:
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
